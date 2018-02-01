@@ -1,0 +1,30 @@
+
+node ('master') {
+  
+		   stage ('Checkout')
+		  	{
+		  		checkout scm
+		 	}
+		 	
+  stage ('Docker build')
+  	{
+  		echo "Running ${env.BUILD_ID}"
+  		
+  		dcImageName = docker.build('nginx_http_to_https_redirect_docker_container')
+  	}
+
+  stage ('Docker push')
+  	{
+  	
+  	docker.withRegistry('https://123456789.dkr.ecr.eu-west-1.amazonaws.com', 'ecr:eu-west-1:ecr-admin')
+  	    {
+  	
+    	docker.image('nginx_http_to_https_redirect_docker_container').push('v1.0')
+    	}
+    
+  	}
+
+ stage('Clean Up') { 
+        deleteDir() // Delete the current working dir
+    }
+}
